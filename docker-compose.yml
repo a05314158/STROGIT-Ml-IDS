@@ -1,0 +1,83 @@
+version: '3.8'
+
+services:
+  # 1. БАЗА ДАННЫХ (POSTGRESQL + TIMESCALEDB)
+  db:
+    image: timescale/timescaledb:latest-pg15
+    container_name: ids_postgres
+    environment:
+      POSTGRES_USER: ids_user
+      POSTGRES_PASSWORD: ids_password
+      POSTGRES_DB: ids_db
+    restart: always
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ids_user -d ids_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - ids_network
+
+  # 2. ПОЧТОВЫЙ ЯЩИК (REDIS)
+  redis:
+    image: redis:7-alpine
+    container_name: ids_redis
+    restart: always
+    volumes:
+      - redis_data:/data
+    networks:
+      - ids_network
+
+  # 3. ВЕБ-ИНТЕРФЕЙС (FLASK + GUNICORN)
+  web:
+    build: .
+    container_name: ids_web
+    restart: always
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    # Увеличено до 4 workers для обработки 50+ req/sec
+    command: gunicorn --bind 0.0.0.0:5000 "app:app" --workers 4 --threads 2 --timeout 120 --reload
+    ports:
+      - "5000:5000"
+    volumes:
+      - .:/app  # <-- ЭТО ГЛАВНОЕ: твои файлы на диске "пробрасываются" внутрь
+    environment:
+      - DATABASE_URL=postgresql://ids_user:ids_password@db:5432/ids_db
+      - REDIS_URL=redis://redis:6379/0
+      - PYTHONUNBUFFERED=1
+      - FLASK_DEBUG=1 # Включаем режим отладки для Flask
+    networks:
+      - ids_network
+
+  # 4. МОЗГ СИСТЕМЫ (CELERY WORKER)
+  worker:
+    build: .
+    container_name: ids_worker
+    restart: always
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    command: celery -A app.celery_app worker --loglevel=info --pool=solo
+    volumes:
+      - .:/app
+    environment:
+      - DATABASE_URL=postgresql://ids_user:ids_password@db:5432/ids_db
+      - REDIS_URL=redis://redis:6379/0
+      - PYTHONUNBUFFERED=1
+    networks:
+      - ids_network
+
+volumes:
+  db_data:
+  redis_data:
+
+networks:
+  ids_network:
+    driver: bridge

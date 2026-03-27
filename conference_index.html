@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ML-IDS Genesis v3.8 - Материалы конференции</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            background: white;
+            border-radius: 10px;
+            padding: 40px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            text-align: center;
+        }
+        
+        .header h1 {
+            color: #667eea;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            color: #666;
+            font-size: 1.1em;
+            margin-bottom: 5px;
+        }
+        
+        .header .meta {
+            color: #999;
+            font-size: 0.95em;
+            margin-top: 15px;
+        }
+        
+        .materials-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .material-card {
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .material-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        
+        .material-card h2 {
+            color: #667eea;
+            font-size: 1.5em;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .material-card .icon {
+            font-size: 1.8em;
+        }
+        
+        .material-card p {
+            color: #666;
+            margin-bottom: 15px;
+            line-height: 1.6;
+        }
+        
+        .material-card ul {
+            margin-left: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .material-card li {
+            margin-bottom: 8px;
+            color: #555;
+        }
+        
+        .btn {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: background 0.3s;
+            border: none;
+            cursor: pointer;
+            font-size: 1em;
+        }
+        
+        .btn:hover {
+            background: #764ba2;
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+        }
+        
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+        
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .info-box {
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+        }
+        
+        .info-box h2 {
+            color: #667eea;
+            font-size: 1.5em;
+            margin-bottom: 20px;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+        
+        .info-box h3 {
+            color: #764ba2;
+            font-size: 1.2em;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+        
+        .info-box p {
+            color: #666;
+            margin-bottom: 15px;
+        }
+        
+        .info-box ul {
+            margin-left: 20px;
+            margin-bottom: 15px;
+        }
+        
+        .info-box li {
+            margin-bottom: 8px;
+            color: #555;
+        }
+        
+        .timeline {
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+        }
+        
+        .timeline h2 {
+            color: #667eea;
+            font-size: 1.5em;
+            margin-bottom: 20px;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+        
+        .timeline-item {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .timeline-item:last-child {
+            border-bottom: none;
+        }
+        
+        .timeline-time {
+            color: #667eea;
+            font-weight: bold;
+            min-width: 100px;
+        }
+        
+        .timeline-content {
+            flex: 1;
+        }
+        
+        .timeline-content h3 {
+            color: #764ba2;
+            margin-bottom: 5px;
+        }
+        
+        .timeline-content p {
+            color: #666;
+            margin-bottom: 5px;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .stat-box {
+            background: #f0f4ff;
+            padding: 15px;
+            border-radius: 5px;
+            border-left: 4px solid #667eea;
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .stat-label {
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        .footer {
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+        }
+        
+        .footer p {
+            color: #666;
+            margin-bottom: 10px;
+        }
+        
+        .footer .social {
+            margin-top: 20px;
+        }
+        
+        .footer a {
+            color: #667eea;
+            text-decoration: none;
+            margin: 0 10px;
+        }
+        
+        .footer a:hover {
+            text-decoration: underline;
+        }
+        
+        @media (max-width: 768px) {
+            .materials-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 1.8em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        
+        <!-- Header -->
+        <div class="header">
+            <h1>📊 ML-IDS Genesis v3.8</h1>
+            <p>Система обнаружения вторжений на основе глубокого обучения</p>
+            <p style="font-size: 1em; margin-top: 10px;">Deep Learning подход к обнаружению аномалий в сетевом трафике</p>
+            <div class="meta">
+                <p>Научная конференция по кибербезопасности и машинному обучению</p>
+                <p>Март 2026</p>
+            </div>
+        </div>
+        
+        <!-- Materials Grid -->
+        <div class="materials-grid">
+            
+            <!-- Presentation -->
+            <div class="material-card">
+                <h2><span class="icon">🎬</span> Презентация</h2>
+                <p>Полная научная презентация с 13 слайдами, архитектурными диаграммами, математическими формулами и результатами.</p>
+                <ul>
+                    <li>13 слайдов</li>
+                    <li>20-25 минут доклада</li>
+                    <li>Архитектура системы</li>
+                    <li>ML модель и формулы</li>
+                    <li>Метрики производительности</li>
+                    <li>Результаты и выводы</li>
+                </ul>
+                <div class="btn-group">
+                    <a href="conference_presentation.html" class="btn" target="_blank">Открыть презентацию</a>
+                </div>
+            </div>
+            
+            <!-- Abstract -->
+            <div class="material-card">
+                <h2><span class="icon">📄</span> Резюме (Abstract)</h2>
+                <p>Краткое резюме проекта для конференции (250 слов) с ключевыми словами и категориями.</p>
+                <ul>
+                    <li>Описание проблемы</li>
+                    <li>Ключевые компоненты</li>
+                    <li>Результаты и метрики</li>
+                    <li>Применение</li>
+                    <li>Ключевые слова</li>
+                    <li>Категория и тип</li>
+                </ul>
+                <div class="btn-group">
+                    <a href="conference_abstract.md" class="btn" target="_blank">Открыть резюме</a>
+                </div>
+            </div>
+            
+            <!-- Handout -->
+            <div class="material-card">
+                <h2><span class="icon">📋</span> Раздаточный материал</h2>
+                <p>Подробный раздаточный материал для участников конференции с таблицами и примерами.</p>
+                <ul>
+                    <li>11 разделов</li>
+                    <li>Проблема и решение</li>
+                    <li>Архитектура и компоненты</li>
+                    <li>13 признаков трафика</li>
+                    <li>Оптимизация и результаты</li>
+                    <li>Применение и выводы</li>
+                </ul>
+                <div class="btn-group">
+                    <a href="conference_handout.html" class="btn" target="_blank">Открыть материал</a>
+                </div>
+            </div>
+            
+            <!-- Speaker Notes -->
+            <div class="material-card">
+                <h2><span class="icon">🎤</span> Шпаргалка докладчика</h2>
+                <p>Подробная шпаргалка с текстом для каждого слайда, ответами на вопросы и советами.</p>
+                <ul>
+                    <li>Текст для каждого слайда</li>
+                    <li>Ключевые фразы</li>
+                    <li>Ответы на вопросы</li>
+                    <li>Советы для презентации</li>
+                    <li>Управление временем</li>
+                    <li>Чек-лист перед докладом</li>
+                </ul>
+                <div class="btn-group">
+                    <a href="speaker_notes.md" class="btn" target="_blank">Открыть шпаргалку</a>
+                </div>
+            </div>
+            
+        </div>
+        
+        <!-- Quick Stats -->
+        <div class="info-box">
+            <h2>📈 Ключевые метрики</h2>
+            <div class="stats">
+                <div class="stat-box">
+                    <div class="stat-value">94-97%</div>
+                    <div class="stat-label">Точность модели</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value">2-3%</div>
+                    <div class="stat-label">False Positive Rate</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value">5-50ms</div>
+                    <div class="stat-label">Время обнаружения</div>
+                </div>
+            </div>
+            <div class="stats">
+                <div class="stat-box">
+                    <div class="stat-value">500+</div>
+                    <div class="stat-label">Запросов/сек</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value">50ms</div>
+                    <div class="stat-label">Latency</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value">1000+</div>
+                    <div class="stat-label">Поддерживаемых сенсоров</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Timeline -->
+        <div class="timeline">
+            <h2>⏱️ Структура доклада (25 минут)</h2>
+            
+            <div class="timeline-item">
+                <div class="timeline-time">0-2 мин</div>
+                <div class="timeline-content">
+                    <h3>Введение</h3>
+                    <p>Проблема традиционных IDS, решение через Deep Learning</p>
+                </div>
+            </div>
+            
+            <div class="timeline-item">
+                <div class="timeline-time">2-5 мин</div>
+                <div class="timeline-content">
+                    <h3>Архитектура</h3>
+                    <p>Компоненты системы: сенсор, веб-сервер, ML Worker, БД</p>
+                </div>
+            </div>
+            
+            <div class="timeline-item">
+                <div class="timeline-time">5-9 мин</div>
+                <div class="timeline-content">
+                    <h3>ML Модель</h3>
+                    <p>Deep Autoencoder, архитектура, математика, обнаружение аномалий</p>
+                </div>
+            </div>
+            
+            <div class="timeline-item">
+                <div class="timeline-time">9-11 мин</div>
+                <div class="timeline-content">
+                    <h3>Признаки и оптимизация</h3>
+                    <p>13 ключевых признаков, оптимизация производительности (550x)</p>
+                </div>
+            </div>
+            
+            <div class="timeline-item">
+                <div class="timeline-time">11-15 мин</div>
+                <div class="timeline-content">
+                    <h3>Метрики и безопасность</h3>
+                    <p>Производительность, безопасность, multi-tenant архитектура</p>
+                </div>
+            </div>
+            
+            <div class="timeline-item">
+                <div class="timeline-time">15-20 мин</div>
+                <div class="timeline-content">
+                    <h3>Угрозы, результаты, применение</h3>
+                    <p>Типы обнаруживаемых атак, результаты, сценарии применения</p>
+                </div>
+            </div>
+            
+            <div class="timeline-item">
+                <div class="timeline-time">20-25 мин</div>
+                <div class="timeline-content">
+                    <h3>Выводы и спасибо</h3>
+                    <p>Ключевые достижения, будущие направления, контакты</p>
+                </div>
+            </div>
+            
+        </div>
+        
+        <!-- How to Use -->
+        <div class="info-box">
+            <h2>🚀 Как использовать материалы</h2>
+            
+            <h3>Перед конференцией:</h3>
+            <ul>
+                <li>Прочитайте <strong>speaker_notes.md</strong> 2-3 раза</li>
+                <li>Откройте <strong>conference_presentation.html</strong> в браузере</li>
+                <li>Распечатайте <strong>conference_handout.html</strong> для раздачи</li>
+                <li>Подготовьте ноутбук и проектор</li>
+                <li>Проверьте интернет соединение</li>
+            </ul>
+            
+            <h3>Во время доклада:</h3>
+            <ul>
+                <li>Используйте <strong>speaker_notes.md</strong> как шпаргалку</li>
+                <li>Показывайте слайды из <strong>conference_presentation.html</strong></li>
+                <li>Следите за временем (25 минут на доклад)</li>
+                <li>Используйте ключевые фразы из шпаргалки</li>
+                <li>Готовьтесь к вопросам (ответы в speaker_notes.md)</li>
+            </ul>
+            
+            <h3>После доклада:</h3>
+            <ul>
+                <li>Раздайте <strong>conference_handout.html</strong> участникам</li>
+                <li>Поделитесь ссылкой на <strong>conference_abstract.md</strong></li>
+                <li>Предоставьте контакты и ссылки на GitHub</li>
+                <li>Соберите обратную связь</li>
+            </ul>
+        </div>
+        
+        <!-- Key Takeaways -->
+        <div class="info-box">
+            <h2>💡 Ключевые выводы для аудитории</h2>
+            
+            <h3>Что нужно запомнить:</h3>
+            <ul>
+                <li><strong>Deep Learning превосходит сигнатурные методы</strong> - обнаруживает неизвестные атаки</li>
+                <li><strong>Autoencoder подход</strong> - учится на нормальном трафике, обнаруживает отклонения</li>
+                <li><strong>Производительность критична</strong> - 550x улучшение через оптимизацию</li>
+                <li><strong>Multi-tenant архитектура</strong> - безопасность и изоляция данных</li>
+                <li><strong>Production-ready</strong> - может защищать 1000+ устройств одновременно</li>
+            </ul>
+            
+            <h3>Преимущества перед конкурентами:</h3>
+            <ul>
+                <li>✅ Обнаружение zero-day атак</li>
+                <li>✅ 2-3% false positive rate (vs 5-10%)</li>
+                <li>✅ 5-50ms время обнаружения</li>
+                <li>✅ Самообучение (переобучение каждые 24 часа)</li>
+                <li>✅ Масштабируемость (1000+ сенсоров)</li>
+            </ul>
+        </div>
+        
+        <!-- Resources -->
+        <div class="info-box">
+            <h2>📚 Дополнительные ресурсы</h2>
+            
+            <h3>Файлы проекта:</h3>
+            <ul>
+                <li><strong>conference_presentation.html</strong> - Полная презентация (13 слайдов)</li>
+                <li><strong>conference_abstract.md</strong> - Резюме для конференции</li>
+                <li><strong>conference_handout.html</strong> - Раздаточный материал</li>
+                <li><strong>speaker_notes.md</strong> - Шпаргалка докладчика</li>
+                <li><strong>conference_index.html</strong> - Этот файл (индекс всех материалов)</li>
+            </ul>
+            
+            <h3>Проект на GitHub:</h3>
+            <ul>
+                <li>GitHub: <a href="https://github.com/anomalyco/ml-ids" target="_blank">github.com/anomalyco/ml-ids</a></li>
+                <li>Документация: <a href="https://ml-ids.ai/docs" target="_blank">ml-ids.ai/docs</a></li>
+            </ul>
+            
+            <h3>Технологии:</h3>
+            <ul>
+                <li>Flask - веб-фреймворк</li>
+                <li>PostgreSQL - база данных</li>
+                <li>TensorFlow - машинное обучение</li>
+                <li>Celery - очередь задач</li>
+                <li>Redis - кэширование</li>
+                <li>Docker - контейнеризация</li>
+            </ul>
+        </div>
+        
+        <!-- Footer -->
+        <div class="footer">
+            <p><strong>ML-IDS Genesis v3.8</strong></p>
+            <p>Система обнаружения вторжений на основе глубокого обучения</p>
+            <p style="margin-top: 20px; color: #999;">Материалы конференции | Март 2026</p>
+            <div class="social">
+                <a href="https://github.com/anomalyco/ml-ids" target="_blank">GitHub</a>
+                <a href="https://ml-ids.ai/docs" target="_blank">Документация</a>
+                <a href="mailto:info@ml-ids.ai">Email</a>
+            </div>
+            <p style="margin-top: 20px; font-size: 0.9em; color: #999;">
+                © 2026 ML Security Research Team. Все права защищены.
+            </p>
+        </div>
+        
+    </div>
+</body>
+</html>

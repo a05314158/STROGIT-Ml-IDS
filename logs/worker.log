@@ -1,0 +1,19 @@
+[2026-03-26 16:56:41,190] [ERROR] [worker] Training task failed for model 1: No module named 'ml_model'
+Traceback (most recent call last):
+  File "/app/app.py", line 150, in train_model_task
+    from ml_model import TFAutoencoderDetector, IsolationForestDetector
+ModuleNotFoundError: No module named 'ml_model'
+[2026-03-26 17:07:59,831] [ERROR] [worker] Training task failed for model 2: No module named 'ml_model'
+Traceback (most recent call last):
+  File "/app/app.py", line 150, in train_model_task
+    from ml_model import TFAutoencoderDetector, IsolationForestDetector
+ModuleNotFoundError: No module named 'ml_model'
+[2026-03-26 17:21:07,518] [ERROR] [worker] Training task failed for model 2: No module named 'ml_model'
+Traceback (most recent call last):
+  File "/app/app.py", line 150, in train_model_task
+    from ml_model import TFAutoencoderDetector, IsolationForestDetector
+ModuleNotFoundError: No module named 'ml_model'
+[2026-03-26 17:32:26,868] [INFO] [worker] Starting training for model 2 with 500 samples
+[2026-03-26 17:47:01,761] [INFO] [worker] Starting training for model 3 with 500 samples
+[2026-03-27 11:07:11,887] [INFO] [worker] Starting training for model 5 with 500 samples
+[2026-03-27 11:07:19,266] [INFO] [worker] Model 5 loaded and cached

@@ -1,0 +1,179 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container-fluid py-5">
+    <div class="row align-items-center" style="min-height: 85vh;">
+        <div class="col-lg-6 pe-lg-5">
+            <div style="animation: slideInLeft 0.8s ease-out;">
+                <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 mb-4 fw-bold border border-primary border-opacity-20">
+                    <i class="fa-solid fa-star me-2"></i>V 3.8 ENTERPRISE READY
+                </span>
+                <h1 class="display-3 fw-900 mb-4" style="line-height: 1.1; font-size: 3.5rem;">
+                    Neural <span class="text-primary" style="background: linear-gradient(135deg, #00d2ff, #3a7bd5); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">Intelligence</span> for Network Defense.
+                </h1>
+                <p class="fs-5 text-dim mb-5 pe-lg-5" style="line-height: 1.8;">
+                    Автономная система обнаружения вторжений нового поколения. Используйте мощь глубоких автоэнкодеров и машинного обучения для защиты вашей инфраструктуры в реальном времени.
+                </p>
+                
+                <!-- Features -->
+                <div class="row g-3 mb-5">
+                    <div class="col-sm-6">
+                        <div class="d-flex gap-3">
+                            <div class="text-primary" style="font-size: 1.5rem;">
+                                <i class="fa-solid fa-bolt"></i>
+                            </div>
+                            <div>
+                                <h6 class="fw-bold mb-1">Real-Time Detection</h6>
+                                <small class="text-dim">Мониторинг 24/7 с задержкой <50ms</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="d-flex gap-3">
+                            <div class="text-success" style="font-size: 1.5rem;">
+                                <i class="fa-solid fa-brain"></i>
+                            </div>
+                            <div>
+                                <h6 class="fw-bold mb-1">AI-Powered</h6>
+                                <small class="text-dim">Deep Learning для точной детекции</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="d-flex gap-3">
+                            <div class="text-warning" style="font-size: 1.5rem;">
+                                <i class="fa-solid fa-shield-halved"></i>
+                            </div>
+                            <div>
+                                <h6 class="fw-bold mb-1">Enterprise Grade</h6>
+                                <small class="text-dim">Масштабируемость до 1000+ устройств</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="d-flex gap-3">
+                            <div class="text-info" style="font-size: 1.5rem;">
+                                <i class="fa-solid fa-chart-line"></i>
+                            </div>
+                            <div>
+                                <h6 class="fw-bold mb-1">Analytics</h6>
+                                <small class="text-dim">Детальные отчеты и статистика</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CTA Buttons -->
+                <div class="d-flex gap-3 flex-wrap">
+                    {% if not current_user.is_authenticated %}
+                    <a href="{{ url_for('register') }}" class="btn-ids-primary px-5 py-3">
+                        <i class="fa-solid fa-rocket me-2"></i>Get Started Free
+                    </a>
+                    <a href="{{ url_for('login') }}" class="btn btn-outline-secondary px-5 py-3 rounded-3 border-opacity-25 fw-bold text-white" style="transition: 0.3s;">
+                        <i class="fa-solid fa-sign-in-alt me-2"></i>Sign In
+                    </a>
+                    {% else %}
+                    <a href="{{ url_for('dashboard') }}" class="btn-ids-primary px-5 py-3">
+                        <i class="fa-solid fa-gauge me-2"></i>Open Console
+                    </a>
+                    <a href="{{ url_for('profile') }}" class="btn btn-outline-secondary px-5 py-3 rounded-3 border-opacity-25 fw-bold text-white">
+                        <i class="fa-solid fa-user me-2"></i>Profile
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Right side - Terminal Demo -->
+        <div class="col-lg-6 d-none d-lg-block ps-lg-5">
+            <div style="animation: fadeInUp 0.8s ease-out 0.2s both;">
+                <div class="position-relative">
+                    <!-- Glow effect -->
+                    <div class="position-absolute top-50 start-50 translate-middle" style="width: 400px; height: 400px; background: radial-gradient(circle, rgba(0, 210, 255, 0.15), transparent); filter: blur(80px); z-index: -1;"></div>
+                    
+                    <!-- Terminal Card -->
+                    <div class="ids-card p-0 shadow-lg" style="transform: perspective(1200px) rotateY(-8deg) rotateX(3deg); box-shadow: 0 20px 60px rgba(0, 210, 255, 0.2);">
+                        <div class="bg-black rounded-top-4 overflow-hidden">
+                            <!-- Terminal Header -->
+                            <div class="p-3 border-bottom border-white border-opacity-5 d-flex gap-2 align-items-center" style="background: linear-gradient(90deg, rgba(0,0,0,0.5), rgba(0,210,255,0.05));">
+                                <div style="width:10px; height:10px; border-radius:50%; background:#ff5f56; box-shadow: 0 0 8px rgba(255,95,86,0.5);"></div>
+                                <div style="width:10px; height:10px; border-radius:50%; background:#ffbd2e; box-shadow: 0 0 8px rgba(255,189,46,0.5);"></div>
+                                <div style="width:10px; height:10px; border-radius:50%; background:#27c93f; box-shadow: 0 0 8px rgba(39,201,63,0.5);"></div>
+                                <span class="ms-auto ids-tiny text-dim">genesis@neural-core</span>
+                            </div>
+                            
+                            <!-- Terminal Content -->
+                            <div class="p-5 mono" style="font-size: 13px; line-height: 2; min-height: 350px; background: linear-gradient(135deg, rgba(0,0,0,0.8), rgba(0,210,255,0.02));">
+                                <div><span class="text-primary">root@genesis:~$</span> <span class="text-white">ids-service --status</span></div>
+                                <div class="text-success"><i class="fa-solid fa-check me-2"></i>Neural Engine Initialized...</div>
+                                <div class="text-success"><i class="fa-solid fa-check me-2"></i>Capture Driver Loaded (eth0)</div>
+                                <div class="text-success"><i class="fa-solid fa-check me-2"></i>Autoencoder Weights Verified...</div>
+                                <div class="text-success"><i class="fa-solid fa-check me-2"></i>PostgreSQL Connected</div>
+                                <div class="text-success"><i class="fa-solid fa-check me-2"></i>Redis Cache Ready</div>
+                                <div class="mt-4"><span class="text-primary">root@genesis:~$</span> <span class="text-white">monitoring --live --verbose</span></div>
+                                <div class="text-warning mt-2"><i class="fa-solid fa-play me-2"></i>Thread established. Listening on all interfaces...</div>
+                                <div class="text-info mt-2"><i class="fa-solid fa-arrow-right me-2"></i>Packets: 1,234 | Bytes: 45.2MB | Anomaly Score: 0.12</div>
+                                <div class="text-success mt-2"><i class="fa-solid fa-shield me-2"></i>Status: PROTECTED</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats Section -->
+    <div class="row g-4 mt-5 pt-5 border-top border-white border-opacity-5">
+        {% for stat, value, icon, color in [
+            ('Active Deployments', '1,200+', 'fa-server', '#00d2ff'),
+            ('Packets Analyzed', '50B+', 'fa-database', '#9d50bb'),
+            ('Uptime', '99.99%', 'fa-heart-pulse', '#ff4757'),
+            ('Response Time', '<50ms', 'fa-bolt', '#ffa502')
+        ] %}
+        <div class="col-md-6 col-lg-3">
+            <div class="text-center">
+                <div style="font-size: 2.5rem; color: {{ color }}; margin-bottom: 1rem;">
+                    <i class="fa-solid {{ icon }}"></i>
+                </div>
+                <h3 class="fw-bold mb-2" style="font-size: 1.8rem;">{{ value }}</h3>
+                <p class="text-dim ids-tiny">{{ stat }}</p>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<style>
+    @keyframes slideInLeft {
+        from {
+            opacity: 0;
+            transform: translateX(-50px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .btn:hover {
+        transform: translateY(-2px);
+        transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .btn-outline-secondary:hover {
+        border-color: var(--accent-primary) !important;
+        color: var(--accent-primary) !important;
+        box-shadow: 0 0 20px rgba(0, 210, 255, 0.2);
+    }
+</style>
+{% endblock %}

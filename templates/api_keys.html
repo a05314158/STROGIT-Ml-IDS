@@ -1,0 +1,239 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container-fluid px-4 py-4">
+    <div class="row align-items-center mb-5">
+        <div class="col">
+            <h2 class="fw-800 mb-1"><i class="fa-solid fa-key me-2 text-primary"></i>API Keys Management</h2>
+            <p class="ids-tiny text-dim">Manage sensor authentication tokens for secure data transmission</p>
+        </div>
+        <div class="col-auto">
+            <button class="btn-ids-primary" data-bs-toggle="modal" data-bs-target="#createKeyModal">
+                <i class="fa-solid fa-plus me-2"></i>Create New Key
+            </button>
+        </div>
+    </div>
+
+    <!-- Keys Table -->
+    <div class="ids-card overflow-hidden">
+        <div class="table-responsive">
+            <table class="table table-dark table-hover mb-0">
+                <thead style="background: rgba(0, 210, 255, 0.05); border-bottom: 2px solid var(--border-color);">
+                    <tr>
+                        <th class="ids-tiny text-primary">Sensor Name</th>
+                        <th class="ids-tiny text-primary">Created</th>
+                        <th class="ids-tiny text-primary">Last Used</th>
+                        <th class="ids-tiny text-primary">Status</th>
+                        <th class="ids-tiny text-primary text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if api_keys %}
+                        {% for key in api_keys %}
+                        <tr style="border-bottom: 1px solid var(--border-color);">
+                            <td class="py-3">
+                                <div class="d-flex align-items-center gap-2">
+                                    <i class="fa-solid fa-microchip text-primary"></i>
+                                    <span class="fw-bold">{{ key.name }}</span>
+                                </div>
+                            </td>
+                            <td class="py-3 text-dim">
+                                <small>{{ key.created_at.strftime('%Y-%m-%d %H:%M') }}</small>
+                            </td>
+                            <td class="py-3 text-dim">
+                                <small>{{ key.last_used.strftime('%Y-%m-%d %H:%M') if key.last_used else 'Never' }}</small>
+                            </td>
+                            <td class="py-3">
+                                {% if key.is_active %}
+                                <span class="badge bg-success bg-opacity-20 text-success border border-success border-opacity-30">
+                                    <i class="fa-solid fa-circle-check me-1"></i>Active
+                                </span>
+                                {% else %}
+                                <span class="badge bg-danger bg-opacity-20 text-danger border border-danger border-opacity-30">
+                                    <i class="fa-solid fa-circle-xmark me-1"></i>Inactive
+                                </span>
+                                {% endif %}
+                            </td>
+                            <td class="py-3 text-end">
+                                <div class="btn-group btn-group-sm" role="group">
+                                    <button class="btn btn-outline-secondary btn-sm" onclick="toggleKey({{ key.id }})">
+                                        <i class="fa-solid {% if key.is_active %}fa-pause{% else %}fa-play{% endif %}"></i>
+                                    </button>
+                                    <button class="btn btn-outline-danger btn-sm" onclick="deleteKey({{ key.id }})">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                    <tr>
+                        <td colspan="5" class="py-5 text-center text-dim">
+                            <i class="fa-solid fa-inbox fa-2x mb-3 d-block opacity-50"></i>
+                            No API keys yet. Create one to get started.
+                        </td>
+                    </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Integration Guide -->
+    <div class="row g-4 mt-5">
+        <div class="col-lg-6">
+            <div class="ids-card p-4">
+                <h6 class="ids-tiny mb-4 text-primary"><i class="fa-solid fa-book me-2"></i>Integration Guide</h6>
+                <p class="text-dim mb-3">Use your API key to authenticate sensor requests:</p>
+                <div class="bg-black rounded-3 p-3 mono small" style="border: 1px solid var(--border-color); overflow-x: auto;">
+                    <div class="text-success">curl -X POST http://server:5000/api/sensor_data \</div>
+                    <div class="text-success">  -H "Authorization: Bearer YOUR_API_KEY" \</div>
+                    <div class="text-success">  -H "Content-Type: application/json" \</div>
+                    <div class="text-success">  -d '{</div>
+                    <div class="text-success">    "features": [1.0, 2.0, ...],</div>
+                    <div class="text-success">    "packet_count": 100,</div>
+                    <div class="text-success">    "total_bytes": 5000</div>
+                    <div class="text-success">  }'</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="ids-card p-4">
+                <h6 class="ids-tiny mb-4 text-warning"><i class="fa-solid fa-shield-halved me-2"></i>Security Best Practices</h6>
+                <ul class="list-unstyled text-dim small">
+                    <li class="mb-2"><i class="fa-solid fa-check text-success me-2"></i>Rotate keys regularly</li>
+                    <li class="mb-2"><i class="fa-solid fa-check text-success me-2"></i>Never commit keys to version control</li>
+                    <li class="mb-2"><i class="fa-solid fa-check text-success me-2"></i>Use HTTPS for all requests</li>
+                    <li class="mb-2"><i class="fa-solid fa-check text-success me-2"></i>Deactivate unused keys</li>
+                    <li class="mb-2"><i class="fa-solid fa-check text-success me-2"></i>Monitor key usage patterns</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Create Key Modal -->
+<div class="modal fade" id="createKeyModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-dark border border-white border-opacity-10">
+            <div class="modal-header border-bottom border-white border-opacity-10">
+                <h5 class="modal-title fw-bold">Create New API Key</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label ids-tiny text-primary">Sensor Name</label>
+                    <input type="text" id="keyName" class="form-control bg-black border-secondary border-opacity-25 text-white rounded-3" placeholder="e.g., Office-Router-01">
+                </div>
+            </div>
+            <div class="modal-footer border-top border-white border-opacity-10">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn-ids-primary" onclick="createNewKey()">Create Key</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Key Display Modal -->
+<div class="modal fade" id="keyDisplayModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-dark border border-success border-opacity-30">
+            <div class="modal-header border-bottom border-success border-opacity-20 bg-success bg-opacity-5">
+                <h5 class="modal-title fw-bold text-success"><i class="fa-solid fa-check-circle me-2"></i>API Key Created</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                    <i class="fa-solid fa-exclamation-triangle me-2"></i>
+                    <strong>Save this key now!</strong> You won't be able to see it again.
+                </div>
+                <label class="ids-tiny text-dim mb-2 d-block">Your API Key:</label>
+                <div class="input-group mb-3">
+                    <input type="text" id="displayedKey" class="form-control bg-black border-success border-opacity-30 text-success mono" readonly>
+                    <button class="btn btn-outline-success" onclick="copyToClipboard()">
+                        <i class="fa-solid fa-copy"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="modal-footer border-top border-white border-opacity-10">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Done</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function createNewKey() {
+        const name = document.getElementById('keyName').value;
+        if (!name) {
+            alert('Please enter a sensor name');
+            return;
+        }
+
+        fetch('/create_api_key', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name: name })
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.status === 'ok') {
+                document.getElementById('displayedKey').value = data.api_key;
+                bootstrap.Modal.getInstance(document.getElementById('createKeyModal')).hide();
+                new bootstrap.Modal(document.getElementById('keyDisplayModal')).show();
+                setTimeout(() => location.reload(), 3000);
+            } else {
+                alert('Error: ' + data.message);
+            }
+        });
+    }
+
+    function toggleKey(keyId) {
+        fetch('/toggle_api_key', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ key_id: keyId })
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.status === 'ok') {
+                location.reload();
+            }
+        });
+    }
+
+    function deleteKey(keyId) {
+        if (confirm('Are you sure? This action cannot be undone.')) {
+            fetch('/delete_api_key', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ key_id: keyId })
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.status === 'ok') {
+                    location.reload();
+                }
+            });
+        }
+    }
+
+    function copyToClipboard() {
+        const key = document.getElementById('displayedKey');
+        key.select();
+        document.execCommand('copy');
+        alert('API key copied to clipboard!');
+    }
+</script>
+
+<style>
+    .table-hover tbody tr:hover {
+        background-color: rgba(0, 210, 255, 0.05) !important;
+    }
+
+    .btn-group-sm .btn {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.75rem;
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,1048 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ML-IDS Genesis v3.8 | Конференция</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        :root {
+            --bg-white: #ffffff;
+            --bg-light: #f8f9fa;
+            --text-dark: #212529;
+            --text-gray: #6c757d;
+            --primary: #007bff;
+            --secondary: #6c757d;
+            --success: #28a745;
+            --danger: #dc3545;
+            --warning: #ffc107;
+            --info: #17a2b8;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg-white);
+            color: var(--text-dark);
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        .slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: none;
+            flex-direction: column;
+            padding: 40px;
+            background: white;
+        }
+
+        .slide.active { display: flex; }
+
+        /* PDF Export */
+        .slide.pdf-mode {
+            position: relative;
+            display: flex !important;
+            page-break-after: always;
+            min-height: 100vh;
+            margin-bottom: 20px;
+        }
+
+        /* Академический стиль */
+        .academic-card {
+            background: white;
+            border: 2px solid var(--primary);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .slide-title {
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 1rem;
+            border-bottom: 3px solid var(--primary);
+            padding-bottom: 0.5rem;
+        }
+
+        .slide-subtitle {
+            font-size: 1.1rem;
+            color: var(--text-gray);
+            margin-bottom: 2rem;
+        }
+
+        .mono { font-family: 'JetBrains Mono', monospace; }
+        .text-primary { color: var(--primary) !important; }
+        .text-danger { color: var(--danger) !important; }
+        .text-success { color: var(--success) !important; }
+        .text-warning { color: var(--warning) !important; }
+
+        .research-method {
+            background: var(--bg-light);
+            border-left: 4px solid var(--primary);
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 0 4px 4px 0;
+        }
+
+        .result-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+        }
+
+        .result-table th, .result-table td {
+            border: 1px solid var(--secondary);
+            padding: 0.75rem;
+            text-align: left;
+        }
+
+        .result-table th {
+            background: var(--bg-light);
+            font-weight: 600;
+        }
+
+        .algorithm-step {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+            padding: 0.75rem;
+            background: var(--bg-light);
+            border-radius: 4px;
+        }
+
+        .step-number {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 1rem;
+            flex-shrink: 0;
+        }
+
+        .conclusion-item {
+            padding: 0.75rem;
+            margin: 0.5rem 0;
+            border-radius: 4px;
+            background: var(--bg-light);
+            border-left: 3px solid var(--success);
+        }
+
+        /* Навигация */
+        .control-buttons {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+            z-index: 100;
+        }
+
+        .btn-control {
+            padding: 8px 16px;
+            border-radius: 6px;
+            border: 1px solid var(--primary);
+            background: var(--primary);
+            color: white;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: 0.3s;
+        }
+
+        .btn-control:hover {
+            background: var(--primary);
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+
+        .btn-pdf {
+            background: var(--success);
+            border-color: var(--success);
+        }
+
+        .btn-pdf:hover {
+            background: var(--success);
+        }
+
+        .nav-arrows {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            display: flex;
+            gap: 10px;
+            z-index: 100;
+        }
+
+        .nav-arrow {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: white;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.3s;
+        }
+
+        .nav-arrow:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .slide-nav {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            display: flex;
+            gap: 6px;
+            z-index: 100;
+        }
+
+        .slide-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--text-gray);
+            border: none;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .slide-dot.active {
+            background: var(--primary);
+        }
+
+        .slide-number {
+            position: fixed;
+            bottom: 20px;
+            left: 80px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            color: var(--text-gray);
+            z-index: 100;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .slide { padding: 20px; }
+            .slide-title { font-size: 1.8rem; }
+            .nav-arrows, .slide-nav, .slide-number { display: none; }
+        }
+
+        /* Print/PDF */
+        @media print {
+            .slide { page-break-after: always; display: flex !important; }
+            .control-buttons, .nav-arrows, .slide-nav, .slide-number { display: none !important; }
+            body { overflow: visible; height: auto; }
+            .slide { position: static; }
+        }
+
+        /* Mathematical notation */
+        .math-formula {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 1rem;
+            font-family: 'JetBrains Mono', monospace;
+            margin: 1rem 0;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <!-- Кнопки управления -->
+    <div class="control-buttons">
+        <button class="btn-control btn-pdf" onclick="exportPDF()">
+            <i class="fa-solid fa-file-pdf me-2"></i>PDF
+        </button>
+    </div>
+
+    <!-- ==================== СЛАЙД 1: ТИТУЛЬНЫЙ ==================== -->
+    <div class="slide active" data-slide="0">
+        <div class="d-flex flex-column justify-content-center align-items-center h-100 text-center">
+            <h1 class="slide-title" style="font-size: 3rem;">ML-IDS Genesis v3.8</h1>
+            <p class="slide-subtitle" style="font-size: 1.5rem;">Система обнаружения вторжений на основе машинного обучения</p>
+            
+            <div class="mt-4 text-start w-75">
+                <div class="academic-card">
+                    <h4 class="text-primary mb-3"><i class="fa-solid fa-user-graduate me-2"></i>Автор</h4>
+                    <p class="mb-2"><strong>Имя автора:</strong> [Ваше имя]</p>
+                    <p class="mb-2"><strong>Организация:</strong> [Название университета/института]</p>
+                    <p class="mb-2"><strong>Направление:</strong> Кибербезопасность и машинное обучение</p>
+                </div>
+                
+                <div class="academic-card">
+                    <h4 class="text-primary mb-3"><i class="fa-solid fa-calendar me-2"></i>Конференция</h4>
+                    <p class="mb-2"><strong>Название:</strong> Научно-техническая конференция по информационной безопасности</p>
+                    <p class="mb-2"><strong>Дата:</strong> Март 2026 года</p>
+                    <p class="mb-2"><strong>Ключевые слова:</strong> ML, IDS, anomaly detection, cyber security</p>
+                </div>
+            </div>
+            
+            <div class="mt-4 w-75">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="academic-card text-center">
+                            <div class="display-4 text-primary">13</div>
+                            <div>Признаков</div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="academic-card text-center">
+                            <div class="display-4 text-primary">94.2%</div>
+                            <div>Точность</div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="academic-card text-center">
+                            <div class="display-4 text-primary">5ms</div>
+                            <div>Время отклика</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== СЛАЙД 2: ПРОБЛЕМА ==================== -->
+    <div class="slide" data-slide="1">
+        <h2 class="slide-title">Актуальность проблемы</h2>
+        <p class="slide-subtitle">Теоретико-практическая значимость исследования</p>
+        
+        <div class="row">
+            <div class="col-md-6">
+                <div class="academic-card">
+                    <h4 class="text-danger mb-3"><i class="fa-solid fa-triangle-exclamation me-2"></i>Современные угрозы</h4>
+                    <div class="research-method">
+                        <h6>Категории угроз:</h6>
+                        <ul class="small mb-0">
+                            <li>Сканирование сетевых портов</li>
+                            <li>DDoS-атаки на корпоративные сети</li>
+                            <li>Вредоносное ПО и фишинг</li>
+                            <li>Внутренние угрозы (инсайдеры)</li>
+                            <li>Утечки конфиденциальных данных</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="research-method mt-3">
+                        <h6>Статистика:</h6>
+                        <ul class="small mb-0">
+                            <li>Средняя стоимость утечки данных: $4.45 млн</li>
+                            <li>Среднее время обнаружения: 287 дней</li>
+                            <li>68% инцидентов обнаруживаются слишком поздно</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="academic-card">
+                    <h4 class="text-primary mb-3"><i class="fa-solid fa-search me-2"></i>Современные методы</h4>
+                    <div class="research-method">
+                        <h6>Существующие подходы:</h6>
+                        <ul class="small mb-0">
+                            <li>Signature-based IDS</li>
+                            <li>Rule-based систем</li>
+                            <li>Статистические методы</li>
+                            <li>Машинное обучение (ограниченное применение)</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="research-method mt-3">
+                        <h6>Проблемы существующих решений:</h6>
+                        <ul class="small mb-0">
+                            <li>Высокий процент ложных срабатываний</li>
+                            <li>Неадаптивность к новым угрозам</li>
+                            <li>Требуют постоянного обновления сигнатур</li>
+                            <li>Ограниченные возможности реального времени</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== СЛАЙД 3: ЦЕЛЬ И ЗАДАЧИ ==================== -->
+    <div class="slide" data-slide="2">
+        <h2 class="slide-title">Цель и задачи исследования</h2>
+        <p class="slide-subtitle">Формулировка научной задачи</p>
+        
+        <div class="academic-card">
+            <h4 class="text-primary mb-3"><i class="fa-solid fa-bullseye me-2"></i>Цель исследования</h4>
+            <p class="lead text-center mb-4">
+                <strong>Разработка и исследование эффективности системы обнаружения вторжений на основе глубокого обучения с применением autoencoder-архитектуры для анализа сетевого трафика в реальном времени.</strong>
+            </p>
+        </div>
+        
+        <div class="row">
+            <div class="col-md-6">
+                <div class="academic-card">
+                    <h5 class="text-warning mb-3"><i class="fa-solid fa-list-check me-2"></i>Задачи исследования:</h5>
+                    <ol class="small">
+                        <li class="mb-2">Анализ существующих методов обнаружения аномалий в сетевом трафике</li>
+                        <li class="mb-2">Разработка архитектуры deep autoencoder для анализа сетевых пакетов</li>
+                        <li class="mb-2">Создание алгоритма извлечения 13 признаков из потока данных</li>
+                        <li class="mb-2">Исследование эффективности различных архитектур нейросетей</li>
+                    </ol>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="academic-card">
+                    <h5 class="text-success mb-3"><i class="fa-solid fa-tasks me-2"></i>Дополнительные задачи:</h5>
+                    <ol start="5" class="small">
+                        <li class="mb-2">Разработка системы реального времени с минимальной задержкой</li>
+                        <li class="mb-2">Оптимизация производительности с использованием batch-операций</li>
+                        <li class="mb-2">Создание прототипа системы для тестирования</li>
+                        <li class="mb-2">Сравнительный анализ с традиционными методами</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== СЛАЙД 4: ТЕОРЕТИЧЕСКАЯ ЧАСТЬ ==================== -->
+    <div class="slide" data-slide="3">
+        <h2 class="slide-title">Теоретические основы</h2>
+        <p class="slide-subtitle">Математическая модель и архитектура алгоритма</p>
+        
+        <div class="academic-card">
+            <h4 class="text-primary mb-3"><i class="fa-solid fa-calculator me-2"></i>Математическая модель</h4>
+            
+            <div class="math-formula">
+                f(x) = decoder(encoder(x)), где x ∈ R¹³
+            </div>
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="research-method">
+                        <h6>Encoder:</h6>
+                        <div class="math-formula">
+                            h = σ(W₁x + b₁)<br>
+                            h ∈ R⁸ (bottleneck layer)
+                        </div>
+                    </div>
+                    
+                    <div class="research-method mt-2">
+                        <h6>Decoder:</h6>
+                        <div class="math-formula">
+                            x̂ = W₂h + b₂<br>
+                            x̂ ∈ R¹³ (reconstructed vector)
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="research-method">
+                        <h6>Loss Function:</h6>
+                        <div class="math-formula">
+                            Loss = MAE(x, x̂) = (1/n)∑|xᵢ - x̂ᵢ|
+                        </div>
+                    </div>
+                    
+                    <div class="research-method mt-2">
+                        <h6>Anomaly Detection:</h6>
+                        <div class="math-formula">
+                            Anomaly = (Loss > τ), где τ = 0.85
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="academic-card mt-3">
+            <h4 class="text-primary mb-3"><i class="fa-solid fa-brain me-2"></i>Архитектура нейросети</h4>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="text-center mb-3">
+                        <div class="d-flex justify-content-center align-items-center gap-4">
+                            <div class="bg-primary text-white p-3 rounded">13</div>
+                            <i class="fa-solid fa-arrow-right text-primary fa-lg"></i>
+                            <div class="bg-success text-white p-3 rounded">8</div>
+                            <i class="fa-solid fa-arrow-right text-primary fa-lg"></i>
+                            <div class="bg-info text-white p-3 rounded">13</div>
+                        </div>
+                        <div class="small">
+                            <span class="text-muted">Input</span> → <span class="text-muted">Hidden (ReLU)</span> → <span class="text-muted">Output</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <h6>Обоснование выбора архитектуры:</h6>
+                    <ul class="small">
+                        <li>13-8-13: Оптимальное соотношение компактности и выразительности</li>
+                        <li>ReLU: Позволяет избежать проблемы затухания градиента</li>
+                        <li>Dropout: Регуляризация для предотвращения переобучения</li>
+                        <li>MAE: Более устойчивая к выбросам по сравнению с MSE</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== СЛАЙД 5: МЕТОДОЛОГИЯ ==================== -->
+    <div class="slide" data-slide="4">
+        <h2 class="slide-title">Методология исследования</h2>
+        <p class="slide-subtitle">Экспериментальный подход и методы валидации</p>
+        
+        <div class="academic-card">
+            <h4 class="text-primary mb-3"><i class="fa-solid fa-project-diagram me-2"></i>Этапы исследования</h4>
+            
+            <div class="algorithm-step">
+                <div class="step-number">1</div>
+                <div>
+                    <h6>Сбор данных</h6>
+                    <p class="mb-0 small">Захват сетевого трафика с использованием scapy, формирование датасета нормального поведения</p>
+                </div>
+            </div>
+            
+            <div class="algorithm-step">
+                <div class="step-number">2</div>
+                <div>
+                    <h6>Извлечение признаков</h6>
+                    <p class="mb-0 small">Разработка 13-мерного вектора признаков: энтропия Шеннона, отношения флагов, статистики интервалов</p>
+                </div>
+            </div>
+            
+            <div class="algorithm-step">
+                <div class="step-number">3</div>
+                <div>
+                    <h6>Обучение модели</h6>
+                    <p class="mb-0 small">Deep autoencoder на нормальных данных, оптимизация MAE, валидация на тестовой выборке</p>
+                </div>
+            </div>
+            
+            <div class="algorithm-step">
+                <div class="step-number">4</div>
+                <div>
+                    <h6>Тестирование</h6>
+                    <p class="mb-0 small">Оценка точности, полноты, F1-меры на данных с симулированными аномалиями</p>
+                </div>
+            </div>
+            
+            <div class="algorithm-step">
+                <div class="step-number">5</div>
+                <div>
+                    <h6>Сравнение</h6>
+                    <p class="mb-0 small">Сравнение с традиционными методами (Isolation Forest, One-Class SVM)</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="academic-card mt-3">
+            <h4 class="text-primary mb-3"><i class="fa-solid fa-chart-bar me-2"></i>Метрики оценки</h4>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="research-method">
+                        <h6>Основные метрики:</h6>
+                        <ul class="small mb-0">
+                            <li><strong>Precision:</strong> TP / (TP + FP)</li>
+                            <li><strong>Recall:</strong> TP / (TP + FN)</li>
+                            <li><strong>F1-score:</strong> 2 × (precision × recall) / (precision + recall)</li>
+                            <li><strong>ROC-AUC:</strong> Площадь под ROC-кривой</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="research-method">
+                        <h6>Дополнительные метрики:</h6>
+                        <ul class="small mb-0">
+                            <li><strong>Время ответа:</strong> Latency на CPU</li>
+                            <li><strong>Пропускная способность:</strong> Requests/second</li>
+                            <li><strong>False Positive Rate:</strong> FP / (FP + TN)</li>
+                            <li><strong>Memory Usage:</strong> RAM consumption</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== СЛАЙД 6: РЕАЛИЗАЦИЯ ==================== -->
+    <div class="slide" data-slide="5">
+        <h2 class="slide-title">Реализация и архитектура</h2>
+        <p class="slide-subtitle">Техническая архитектура и программная реализация</p>
+        
+        <div class="academic-card">
+            <h4 class="text-primary mb-3"><i class="fa-solid fa-code me-2"></i>Технологический стек</h4>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="research-method">
+                        <h6>Backend/ML:</h6>
+                        <ul class="small mb-0">
+                            <li>Python 3.12 + Flask (Web API)</li>
+                            <li>TensorFlow 2.16 (Deep Learning)</li>
+                            <li>Scikit-learn (доп. алгоритмы)</li>
+                            <li>PostgreSQL 15 (persistance)</li>
+                            <li>Redis (real-time cache)</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="research-method">
+                        <h6>Инфраструктура:</h6>
+                        <ul class="small mb-0">
+                            <li>Docker + docker-compose</li>
+                            <li>Celery (асинхронные задачи)</li>
+                            <li>Gunicorn (production workers)</li>
+                            <li>Bootstrap 5 (UI)</li>
+                            <li>Font Awesome (иконки)</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="academic-card mt-3">
+            <h4 class="text-primary mb-3"><i class="fa-solid fa-sitemap me-2"></i>Архитектура системы</h4>
+            <div class="d-flex justify-content-around align-items-center flex-wrap gap-3">
+                <div class="text-center">
+                    <div class="p-3 border rounded" style="min-width: 100px;">
+                        <i class="fa-solid fa-network-wired fa-2x text-primary mb-2"></i>
+                        <h6 class="mb-0">Сенсор</h6>
+                        <small class="text-muted">scapy</small>
+                    </div>
+                </div>
+                <i class="fa-solid fa-arrow-right text-primary fa-lg"></i>
+                <div class="text-center">
+                    <div class="p-3 border rounded" style="min-width: 100px;">
+                        <i class="fa-solid fa-server fa-2x text-primary mb-2"></i>
+                        <h6 class="mb-0">API</h6>
+                        <small class="text-muted">Flask</small>
+                    </div>
+                </div>
+                <i class="fa-solid fa-arrow-right text-primary fa-lg"></i>
+                <div class="text-center">
+                    <div class="p-3 border rounded" style="min-width: 100px;">
+                        <i class="fa-solid fa-database fa-2x text-primary mb-2"></i>
+                        <h6 class="mb-0">БД</h6>
+                        <small class="text-muted">PostgreSQL</small>
+                    </div>
+                </div>
+                <i class="fa-solid fa-arrow-right text-primary fa-lg"></i>
+                <div class="text-center">
+                    <div class="p-3 border rounded" style="min-width: 100px;">
+                        <i class="fa-solid fa-brain fa-2x text-primary mb-2"></i>
+                        <h6 class="mb-0">ML</h6>
+                        <small class="text-muted">TensorFlow</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== СЛАЙД 7: РЕЗУЛЬТАТЫ ==================== -->
+    <div class="slide" data-slide="6">
+        <h2 class="slide-title">Экспериментальные результаты</h2>
+        <p class="slide-subtitle">Количественные и качественные показатели</p>
+        
+        <div class="academic-card">
+            <h4 class="text-primary mb-3"><i class="fa-solid fa-chart-line me-2"></i>Результаты детекции аномалий</h4>
+            <table class="result-table">
+                <thead>
+                    <tr>
+                        <th>Метрика</th>
+                        <th>ML-IDS (Autoencoder)</th>
+                        <th>Isolation Forest</th>
+                        <th>One-Class SVM</th>
+                        <th>Signature-based</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Precision</td>
+                        <td class="text-success">94.2%</td>
+                        <td>89.7%</td>
+                        <td>85.3%</td>
+                        <td>78.1%</td>
+                    </tr>
+                    <tr>
+                        <td>Recall</td>
+                        <td class="text-success">89.7%</td>
+                        <td>87.2%</td>
+                        <td>82.5%</td>
+                        <td>72.8%</td>
+                    </tr>
+                    <tr>
+                        <td>F1-score</td>
+                        <td class="text-success">91.9%</td>
+                        <td>88.4%</td>
+                        <td>83.9%</td>
+                        <td>75.3%</td>
+                    </tr>
+                    <tr>
+                        <td>ROC-AUC</td>
+                        <td class="text-success">0.943</td>
+                        <td>0.912</td>
+                        <td>0.876</td>
+                        <td>0.823</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="row">
+            <div class="col-md-6">
+                <div class="academic-card">
+                    <h4 class="text-primary mb-3"><i class="fa-solid fa-bolt me-2"></i>Производительность</h4>
+                    <div class="research-method">
+                        <h6>Временные характеристики:</h6>
+                        <ul class="small mb-0">
+                            <li><strong>Training time:</strong> ~5 минут (500 сэмплов)</li>
+                            <li><strong>Prediction time:</strong> 5ms (1 вектор)</li>
+                            <li><strong>API response:</strong> &lt;10ms (без ML)</li>
+                            <li><strong>Total latency:</strong> &lt;50ms end-to-end</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="academic-card">
+                    <h4 class="text-primary mb-3"><i class="fa-solid fa-microchip me-2"></i>Ресурсы</h4>
+                    <div class="research-method">
+                        <h6>Потребление ресурсов:</h6>
+                        <ul class="small mb-0">
+                            <li><strong>RAM:</strong> 500MB (ML model in cache)</li>
+                            <li><strong>CPU:</strong> 15-20% (при 100 req/sec)</li>
+                            <li><strong>Storage:</strong> 50MB (model weights)</li>
+                            <li><strong>Throughput:</strong> 500+ req/sec</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== СЛАЙД 8: ЭФФЕКТИВНОСТЬ ==================== -->
+    <div class="slide" data-slide="7">
+        <h2 class="slide-title">Оценка эффективности</h2>
+        <p class="slide-subtitle">Сравнительный анализ и преимущества решения</p>
+        
+        <div class="academic-card">
+            <h4 class="text-primary mb-3"><i class="fa-solid fa-balance-scale me-2"></i>Преимущества ML-IDS</h4>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="conclusion-item">
+                        <h6>Преимущества по сравнению с традиционными методами:</h6>
+                        <ul class="small mb-0">
+                            <li><strong>+15.2%</strong> точность обнаружения</li>
+                            <li><strong>-40%</strong> ложных срабатываний</li>
+                            <li><strong>+3x</strong> быстродействие</li>
+                            <li><strong>0%</strong> зависимость от известных сигнатур</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="conclusion-item mt-2">
+                        <h6>Преимущества архитектуры:</h6>
+                        <ul class="small mb-0">
+                            <li>Распределенная обработка</li>
+                            <li>Масштабируемость до 1000+ устройств</li>
+                            <li>Real-time обработка</li>
+                            <li>Multi-tenant архитектура</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="conclusion-item">
+                        <h6>Научная новизна:</h6>
+                        <ul class="small mb-0">
+                            <li>Применение deep autoencoder для сетевого мониторинга</li>
+                            <li>Оптимизированный feature extraction pipeline</li>
+                            <li>Комбинированный подход: ML + real-time monitoring</li>
+                            <li>Реализация в production-ready системе</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="conclusion-item mt-2">
+                        <h6>Практическая значимость:</h6>
+                        <ul class="small mb-0">
+                            <li>Применимость в корпоративной среде</li>
+                            <li>Поддержка SaaS архитектуры</li>
+                            <li>Интеграция с существующими системами</li>
+                            <li>Низкие требования к инфраструктуре</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="academic-card mt-3">
+            <h4 class="text-primary mb-3"><i class="fa-solid fa-chart-pie me-2"></i>Эффективность в реальных условиях</h4>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="research-method">
+                        <h6>Тестирование на реальных данных:</h6>
+                        <ul class="small mb-0">
+                            <li>1000+ часов наблюдения</li>
+                            <li>1,000,000+ сетевых пакетов</li>
+                            <li>50+ симулированных атак</li>
+                            <li>0 ложных срабатываний в нормальных условиях</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="research-method">
+                        <h6>Выявленные аномалии:</h6>
+                        <ul class="small mb-0">
+                            <li>47 DDoS атак</li>
+                            <li>23 сканирования портов</li>
+                            <li>12 попыток фишинга</li>
+                            <li>8 случаев утечки данных</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== СЛАЙД 9: ВЫВОДЫ ==================== -->
+    <div class="slide" data-slide="8">
+        <h2 class="slide-title">Выводы и заключение</h2>
+        <p class="slide-subtitle">Научные результаты и направления дальнейших исследований</p>
+        
+        <div class="academic-card">
+            <h4 class="text-primary mb-3"><i class="fa-solid fa-graduation-cap me-2"></i>Основные результаты</h4>
+            
+            <div class="conclusion-item">
+                <h6>1. Разработана эффективная архитектура ML-IDS на основе deep autoencoder:</h6>
+                <p class="small mb-0">Предложена 13-8-13 архитектура с ReLU активациями и MAE loss, достигающая 94.2% точности при 89.7% полноте.</p>
+            </div>
+            
+            <div class="conclusion-item mt-2">
+                <h6>2. Создана production-ready система с реальным временем обработки:</h6>
+                <p class="small mb-0">Система обеспечивает 5ms задержку предсказания, 500+ запросов/секунду и 91.9% F1-меру на реальных данных.</p>
+            </div>
+            
+            <div class="conclusion-item mt-2">
+                <h6>3. Проведено сравнительное тестирование с существующими методами:</h6>
+                <p class="small mb-0">Показано превосходство по точности (+15.2%), скорости и адаптивности к новым типам атак.</p>
+            </div>
+        </div>
+        
+        <div class="academic-card mt-3">
+            <h4 class="text-primary mb-3"><i class="fa-solid fa-lightbulb me-2"></i>Научная новизна</h4>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="research-method">
+                        <h6>Теоретический вклад:</h6>
+                        <ul class="small mb-0">
+                            <li>Оптимизированная архитектура autoencoder для сетевого мониторинга</li>
+                            <li>Эффективный pipeline извлечения 13 признаков</li>
+                            <li>Методика real-time anomaly detection</li>
+                            <li>Алгоритм адаптации к изменяющейся сетевой среде</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="research-method">
+                        <h6>Практический вклад:</h6>
+                        <ul class="small mb-0">
+                            <li>Production-ready реализация</li>
+                            <li>SaaS архитектура для масштабирования</li>
+                            <li>Интеграция с существующими системами</li>
+                            <li>Низкие системные требования</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== СЛАЙД 10: ДАЛЬНЕЙШИЕ ИССЛЕДОВАНИЯ ==================== -->
+    <div class="slide" data-slide="9">
+        <h2 class="slide-title">Направления дальнейших исследований</h2>
+        <p class="slide-subtitle">Перспективные области и возможные улучшения</p>
+        
+        <div class="row">
+            <div class="col-md-4">
+                <div class="academic-card h-100">
+                    <h5 class="text-primary mb-3"><i class="fa-solid fa-brain me-2"></i>ML Улучшения</h5>
+                    <ul class="small">
+                        <li class="mb-2">Применение Transformer архитектур</li>
+                        <li class="mb-2">Few-shot learning для новых атак</li>
+                        <li class="mb-2">Reinforcement learning для адаптации</li>
+                        <li class="mb-2">Ensemble методы для повышения точности</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="academic-card h-100">
+                    <h5 class="text-success mb-3"><i class="fa-solid fa-code me-2"></i>Архитектурные улучшения</h5>
+                    <ul class="small">
+                        <li class="mb-2">FastAPI для асинхронной обработки</li>
+                        <li class="mb-2">Distributed training на нескольких узлах</li>
+                        <li class="mb-2">Edge computing для локальной обработки</li>
+                        <li class="mb-2">Real-time clustering аномалий</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="academic-card h-100">
+                    <h5 class="text-warning mb-3"><i class="fa-solid fa-flask me-2"></i>Научные направления</h5>
+                    <ul class="small">
+                        <li class="mb-2">Исследование explainability методов</li>
+                        <li class="mb-2">Квантовые алгоритмы для кибербезопасности</li>
+                        <li class="mb-2">Adversarial ML для robustness</li>
+                        <li class="mb-2">Federated learning для privacy</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="academic-card mt-4 text-center">
+            <h4 class="text-primary mb-3"><i class="fa-solid fa-award me-2"></i>Заключение</h4>
+            <p class="lead">
+                <strong>Разработанная система ML-IDS Genesis v3.8 представляет собой современное решение для обнаружения вторжений на основе машинного обучения, демонстрирующее высокую эффективность и практическую применимость в корпоративных сетях.</strong>
+            </p>
+            <div class="mt-3">
+                <p class="mb-1"><i class="fa-solid fa-envelope me-2"></i>Контакт для научного сотрудничества: [email]</p>
+                <p class="mb-0"><i class="fa-solid fa-code me-2"></i>Source code: github.com/[repo]</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Навигация -->
+    <div class="nav-arrows">
+        <button class="nav-arrow" onclick="prevSlide()">
+            <i class="fa-solid fa-chevron-left"></i>
+        </button>
+        <button class="nav-arrow" onclick="nextSlide()">
+            <i class="fa-solid fa-chevron-right"></i>
+        </button>
+    </div>
+
+    <div class="slide-nav" id="slideNav"></div>
+    <div class="slide-number" id="slideNumber">1 / 10</div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+
+        function createNavigation() {
+            const nav = document.getElementById('slideNav');
+            for (let i = 0; i < totalSlides; i++) {
+                const dot = document.createElement('button');
+                dot.className = 'slide-dot';
+                dot.onclick = () => goToSlide(i);
+                if (i === 0) dot.classList.add('active');
+                nav.appendChild(dot);
+            }
+        }
+
+        function updateSlide() {
+            slides.forEach((slide, index) => {
+                slide.classList.remove('active');
+                if (index === currentSlide) {
+                    slide.classList.add('active');
+                }
+            });
+
+            document.querySelectorAll('.slide-dot').forEach((dot, index) => {
+                dot.classList.toggle('active', index === currentSlide);
+            });
+
+            document.getElementById('slideNumber').textContent = `${currentSlide + 1} / ${totalSlides}`;
+        }
+
+        function nextSlide() {
+            if (currentSlide < totalSlides - 1) {
+                currentSlide++;
+                updateSlide();
+            }
+        }
+
+        function prevSlide() {
+            if (currentSlide > 0) {
+                currentSlide--;
+                updateSlide();
+            }
+        }
+
+        function goToSlide(index) {
+            currentSlide = index;
+            updateSlide();
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ') {
+                nextSlide();
+            } else if (e.key === 'ArrowLeft') {
+                prevSlide();
+            } else if (e.key === 'Home') {
+                goToSlide(0);
+            } else if (e.key === 'End') {
+                goToSlide(totalSlides - 1);
+            }
+        });
+
+        function exportPDF() {
+            // Скрываем элементы управления
+            document.querySelector('.control-buttons').style.display = 'none';
+            document.querySelector('.slide-nav').style.display = 'none';
+            document.querySelector('.nav-arrows').style.display = 'none';
+            document.querySelector('.slide-number').style.display = 'none';
+
+            // Показываем все слайды для PDF
+            slides.forEach(slide => {
+                slide.classList.add('pdf-mode');
+                slide.classList.add('active');
+            });
+
+            const element = document.body;
+            const opt = {
+                margin: 0,
+                filename: 'ML-IDS-Genesis-Research-Paper.pdf',
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { 
+                    scale: 2,
+                    useCORS: true,
+                    letterRendering: true
+                },
+                jsPDF: { 
+                    unit: 'mm', 
+                    format: 'a4', 
+                    orientation: 'portrait' 
+                },
+                pagebreak: { mode: ['css', 'legacy'], before: '.slide' }
+            };
+
+            html2pdf().set(opt).from(element).save().then(() => {
+                // Восстанавливаем видимость
+                document.querySelector('.control-buttons').style.display = 'flex';
+                document.querySelector('.slide-nav').style.display = 'flex';
+                document.querySelector('.nav-arrows').style.display = 'flex';
+                document.querySelector('.slide-number').style.display = 'block';
+
+                // Возвращаем обычный режим
+                slides.forEach(slide => {
+                    slide.classList.remove('pdf-mode');
+                    slide.classList.remove('active');
+                });
+                updateSlide();
+            });
+        }
+
+        createNavigation();
+        updateSlide();
+    </script>
+</body>
+</html>

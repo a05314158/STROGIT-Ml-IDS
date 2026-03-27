@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container-fluid px-5 py-5">
+    <div class="row g-4 h-100">
+        <div class="col-xl-9">
+            <div class="ids-card h-100 d-flex flex-column">
+                <div class="px-4 py-4 border-bottom border-white border-opacity-5 d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0 fw-bold">Behavioral Flow Analysis</h5>
+                    <span class="badge bg-primary text-dark fw-bold">DPI ACTIVE</span>
+                </div>
+                <div class="table-responsive flex-grow-1">
+                    <table class="table table-dark table-hover mb-0">
+                        <thead class="bg-black bg-opacity-20">
+                            <tr class="ids-tiny">
+                                <th class="ps-4 py-3">Source Node</th>
+                                <th>Target Domain</th>
+                                <th>Category</th>
+                                <th class="text-end pe-4">Session Time</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for d in details %}
+                            <tr class="mono" style="border-bottom: 1px solid rgba(255,255,255,0.02);">
+                                <td class="ps-4 py-3">
+                                    <span class="text-primary opacity-75">192.168.</span>{{ d.ip.split('.')[-2] }}.{{ d.ip.split('.')[-1] }}
+                                </td>
+                                <td class="fw-bold text-white">{{ d.domain }}</td>
+                                <td>
+                                    {% if d.cat == 'Work' %}<span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-10">Productive</span>
+                                    {% elif d.cat == 'Social' %}<span class="badge bg-warning bg-opacity-10 text-warning border border-warning border-opacity-10">Personal</span>
+                                    {% else %}<span class="badge bg-secondary bg-opacity-10 text-dim border border-secondary border-opacity-10">System</span>{% endif %}
+                                </td>
+                                <td class="text-end pe-4 text-info fw-bold">{{ (d.t // 60) }}m {{ d.t % 60 }}s</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-3">
+            <div class="ids-card p-4 mb-4 text-center">
+                <label class="ids-tiny mb-4 d-block">Traffic Distribution</label>
+                <div style="height: 250px;">
+                    <canvas id="prodChart"></canvas>
+                </div>
+            </div>
+
+            <div class="ids-card p-4 bg-primary bg-opacity-5 border-primary border-opacity-10">
+                <h6 class="ids-tiny text-primary mb-3">Threat Intel</h6>
+                <div class="small text-dim mono" style="line-height: 2;">
+                    [OK] TLS Encryption verified<br>
+                    [OK] SNI Host matches IP<br>
+                    [WARN] Long session detected<br>
+                    [OK] No blacklisted domains
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    new Chart(document.getElementById('prodChart'), {
+        type: 'doughnut',
+        data: {
+            labels: [{% for c in cat_stats %}"{{ c.category }}",{% endfor %}],
+            datasets: [{
+                data: [{% for c in cat_stats %}{{ c.t }},{% endfor %}],
+                backgroundColor: ['#00d2ff', '#3fb950', '#f85149', '#f2cc60'],
+                borderWidth: 0,
+                hoverOffset: 15
+            }]
+        },
+        options: {
+            cutout: '80%',
+            plugins: { legend: { position: 'bottom', labels: { color: '#8b949e', padding: 20, font: { family: 'Plus Jakarta Sans', size: 10, weight: 'bold' } } } }
+        }
+    });
+</script>
+{% endblock %}

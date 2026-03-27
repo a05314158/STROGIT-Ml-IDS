@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="soc-viewport-fluid d-flex align-items-center justify-content-center">
+    <div class="row g-5 w-100 h-100 py-5">
+        <!-- СЛЕВА: Профиль -->
+        <div class="col-lg-4">
+            <div class="ids-card p-5 h-100 text-center position-relative overflow-hidden shadow-lg border-opacity-25">
+                <!-- Декоративное свечение -->
+                <div class="position-absolute bg-primary rounded-circle" style="width: 200px; height: 200px; filter: blur(100px); opacity: 0.1; top: -50px; left: 50%; transform: translateX(-50%);"></div>
+
+                <div class="d-inline-flex justify-content-center align-items-center rounded-circle bg-dark border border-secondary border-opacity-50 mb-4 shadow" style="width: 130px; height: 130px; position:relative; z-index: 1;">
+                    <i class="fa-solid fa-user-astronaut text-primary" style="font-size: 55px;"></i>
+                </div>
+
+                <h3 class="fw-bold text-white mb-1">{{ current_user.username }}</h3>
+                <p class="ids-tiny-label text-primary mb-4">{{ current_user.email }}</p>
+
+                <div class="mt-5 text-start border-top border-secondary border-opacity-25 pt-4">
+                    <div class="d-flex justify-content-between mb-3">
+                        <span class="text-muted small fw-bold">Access Level:</span>
+                        <span class="badge bg-warning bg-opacity-10 text-warning border border-warning border-opacity-25 px-3">ROOT / Lvl 5</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-3">
+                        <span class="text-muted small fw-bold">Registry ID:</span>
+                        <span class="mono-font text-white">#USR-{{ "%05d" % current_user.id }}</span>
+                    </div>
+                </div>
+
+                <button class="btn btn-outline-danger btn-sm w-100 mt-5 border-0 bg-danger bg-opacity-5">СБРОСИТЬ КЛЮЧИ ДОСТУПА</button>
+            </div>
+        </div>
+
+        <!-- СПРАВА: Конфиг Ядра (На весь рост) -->
+        <div class="col-lg-8">
+            <div class="ids-card p-5 h-100 d-flex flex-column shadow-lg">
+                <h5 class="fw-bold text-white mb-4 border-bottom border-secondary border-opacity-25 pb-3"><i class="fa-solid fa-sliders text-primary me-3"></i>Конфигурация Core-модуля</h5>
+
+                <div class="row g-4 mt-2 flex-grow-1">
+                    <div class="col-md-6">
+                        <div class="p-4 rounded-4 bg-dark border border-secondary border-opacity-25 h-100">
+                            <label class="ids-tiny-label text-info mb-3">Hardware Acceleration</label>
+                            <div class="d-flex align-items-center gap-3">
+                                <i class="fa-solid fa-microchip fs-3 text-muted"></i>
+                                <div>
+                                    <div class="fw-bold text-white">Neural Engine (GPU)</div>
+                                    <small class="text-success fw-bold">ACTIVATED & LINKED</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="p-4 rounded-4 bg-dark border border-secondary border-opacity-25 h-100">
+                            <label class="ids-tiny-label text-warning mb-3">ML Learning Window</label>
+                            <div class="d-flex align-items-center gap-3">
+                                <i class="fa-solid fa-clock-rotate-left fs-3 text-muted"></i>
+                                <div>
+                                    <div class="fw-bold text-white">60 Minute Snapshots</div>
+                                    <small class="text-muted">Standard B2B Cycle</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Большой блок внизу для текста -->
+                    <div class="col-12 mt-4">
+                        <div class="p-4 rounded-4 bg-primary bg-opacity-5 border border-primary border-opacity-10">
+                            <h6 class="ids-tiny-label text-primary mb-3">Security Doctrine</h6>
+                            <p class="small text-muted mb-0" style="line-height: 1.8;">
+                                Ваша учетная запись привязана к глобальному кластеру <b>{{ current_user.username }}</b>. Все модели обучаются в изолированном контейнере. Любая попытка несанкционированного изменения гиперпараметров приведет к немедленной блокировке ядра. Мы используем AES-256 для шифрования ваших нейронных весов.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .soc-viewport-fluid { min-height: calc(100vh - 120px); padding: 0 40px; }
+</style>
+{% endblock %}

@@ -1,0 +1,463 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container-fluid px-4 py-4">
+    <div class="row align-items-center mb-5">
+        <div class="col">
+            <h2 class="fw-800 mb-1" style="font-size: 2.5rem;">Security <span class="text-primary">Console</span></h2>
+            <p class="ids-tiny text-dim"><i class="fa-solid fa-satellite fa-fade me-2 text-primary"></i> Neural monitoring system live</p>
+        </div>
+        <div class="col-auto">
+            <div class="d-flex gap-2">
+                <button class="btn btn-sm btn-outline-primary rounded-pill" onclick="toggleFullscreen()">
+                    <i class="fa-solid fa-expand"></i> Fullscreen
+                </button>
+                <button class="btn btn-sm btn-outline-secondary rounded-pill" onclick="refreshData()">
+                    <i class="fa-solid fa-rotate-right"></i> Refresh
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- KPI Cards with animations -->
+    <div class="row g-4 mb-5">
+        {% for lab, id, clr, icon, unit, tip in [
+            ('Packets Processing', 'stat-packets', '#00d2ff', 'fa-bolt', 'PKTS/S', 'Current network activity'),
+            ('Network Volume', 'stat-bytes', '#9d50bb', 'fa-database', 'MB', 'Total data processed'),
+            ('Anomaly Score', 'stat-score-max', '#ff9a9e', 'fa-brain', '', 'Current anomaly level'),
+            ('Interface Status', 'stat-interface', '#00f2fe', 'fa-ethernet', 'IFACE', 'Monitoring interface')
+        ] %}
+        <div class="col-md-6 col-lg-3">
+            <div class="ids-card p-4 h-100 position-relative" style="animation-delay: {{ loop.index * 0.1 }}s;">
+                <div class="d-flex justify-content-between mb-3">
+                    <span class="ids-tiny opacity-75">{{ lab }}</span>
+                    <i class="fa-solid {{ icon }} fa-lg" style="color: {{ clr }}; opacity: 0.8;" title="{{ tip }}"></i>
+                </div>
+                <div class="d-flex align-items-baseline gap-2 mb-3">
+                    <h2 class="mono fw-bold mb-0 text-white" id="{{ id }}" style="font-size: 1.8rem;">0</h2>
+                    <small class="ids-tiny opacity-50">{{ unit }}</small>
+                </div>
+                <div class="progress" style="height: 3px; background: rgba(255,255,255,0.05); border-radius: 10px; overflow: hidden;">
+                    <div class="progress-bar" style="background: linear-gradient(90deg, {{ clr }}, rgba(255,255,255,0.2)); width: 65%; animation: pulse 2s infinite;"></div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="row g-4">
+        <!-- ЛЕВАЯ КОЛОНКА -->
+        <div class="col-xl-3">
+            <!-- Deployment Module -->
+            <div class="ids-card p-4 mb-4">
+                <h6 class="ids-tiny mb-4 text-primary"><i class="fa-solid fa-rocket me-2"></i>Deployment Module</h6>
+                <div class="mb-4">
+                    <label class="ids-tiny text-dim mb-2 d-block">Node Identifier</label>
+                    <input type="text" id="model-name-input" class="form-control bg-black border-secondary border-opacity-25 text-white py-3 rounded-3" placeholder="Server-Alpha" style="transition: 0.3s;">
+                </div>
+                <div class="mb-4">
+                    <label class="ids-tiny text-dim mb-2 d-block">Neural Logic</label>
+                    <select id="model-type-select" class="form-select bg-black border-secondary border-opacity-25 text-white py-3 rounded-3" style="transition: 0.3s;">
+                        <option value="tensorflow">🧠 Deep Autoencoder (Reconstruction)</option>
+                        <option value="isolation_forest">📊 Isolation Forest (Statistical)</option>
+                    </select>
+                </div>
+                <button id="create-model-btn" class="btn-ids-primary w-100 py-3">
+                    <i class="fa-solid fa-play me-2"></i>Launch Learning Process
+                </button>
+            </div>
+
+            <!-- Active Kernels -->
+            <div class="ids-card p-4">
+                <h6 class="ids-tiny mb-4 text-success"><i class="fa-solid fa-microchip me-2"></i>Active Kernels</h6>
+                <div id="models-list" class="d-flex flex-column gap-3">
+                    {% for m in models %}
+                    <div class="p-3 rounded-3 border transition-all" style="{% if m.is_active %}border: 1px solid var(--accent-primary); background: rgba(0, 210, 255, 0.05); box-shadow: 0 0 15px rgba(0, 210, 255, 0.1);{% else %}border: 1px solid var(--border-color); background: rgba(255,255,255,0.02);{% endif %} cursor: pointer;" onclick="activateModel({{ m.id }})">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <div class="fw-bold small">{{ m.name }}</div>
+                            <span class="ids-tiny text-primary" style="font-size: 8px;">{{ m.model_type }}</span>
+                        </div>
+                        <div class="progress" style="height: 4px; background: rgba(0,0,0,0.3); border-radius: 10px; overflow: hidden;">
+                            <div class="progress-bar {% if m.progress < 100 %}progress-bar-animated progress-bar-striped bg-warning{% else %}bg-success{% endif %}" style="width: {{ m.progress }}%; transition: width 0.3s;"></div>
+                        </div>
+                        <small class="text-dim mt-2 d-block">{{ m.progress }}% Complete</small>
+                        <div class="mt-2 d-flex justify-content-between align-items-center">
+                            {% if m.progress < 100 %}
+                            <button class="btn btn-sm btn-outline-warning" onclick="stopTraining(event, {{ m.id }});">Stop Training</button>
+                            {% endif %}
+                            <button class="btn btn-sm btn-outline-danger" onclick="deleteModel(event, {{ m.id }}, '{{ m.name }}');">Delete</button>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <!-- Active Model Info -->
+            <div class="ids-card p-4">
+                <h6 class="ids-tiny mb-4 text-success"><i class="fa-solid fa-shield-halved me-2"></i>Active Protection</h6>
+                <div id="active-model-info" class="text-center py-3">
+                    <div class="opacity-50 mb-2">
+                        <i class="fa-solid fa-brain fa-2x mb-2 d-block"></i>
+                    </div>
+                    <div class="small text-dim">No Active Model</div>
+                    <div class="ids-tiny text-muted mt-1">Train and activate a model to begin protection</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ЦЕНТРАЛЬНЫЙ МОНИТОР -->
+        <div class="col-xl-9">
+            <!-- Anomaly Detection Chart -->
+            <div class="ids-card overflow-hidden mb-4">
+                <div class="px-4 py-3 border-bottom border-white border-opacity-5 d-flex justify-content-between align-items-center bg-black bg-opacity-20">
+                    <span class="ids-tiny text-white"><i class="fa-solid fa-chart-line text-primary me-2"></i>Anomaly Detection Stream</span>
+                    <span id="status-mode-text" class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-20 py-2 px-3" style="animation: pulse-glow 2s infinite;">STANDBY</span>
+                </div>
+                <div class="p-4" style="height: 400px; background: linear-gradient(135deg, rgba(0,0,0,0.3), rgba(0,210,255,0.05));">
+                    <canvas id="idsChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Terminal Feed -->
+            <div class="ids-card bg-black overflow-hidden shadow-lg" style="height: 250px; border: 1px solid rgba(63, 185, 80, 0.2);">
+                <div class="px-4 py-2 border-bottom border-white border-opacity-5 bg-dark d-flex justify-content-between align-items-center">
+                    <span class="ids-tiny text-success"><i class="fa-solid fa-terminal me-2"></i>Core System Terminal</span>
+                    <small class="text-dim">Live Feed</small>
+                </div>
+                <div id="terminal-feed" class="p-4 mono small text-success opacity-75 overflow-auto h-100" style="font-size: 11px; line-height: 1.8; background: rgba(0,0,0,0.5);">
+                    <div class="text-dim">[System Ready]</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.7; }
+    }
+
+    @keyframes pulse-glow {
+        0%, 100% { box-shadow: 0 0 10px rgba(0, 210, 255, 0.2); }
+        50% { box-shadow: 0 0 20px rgba(0, 210, 255, 0.4); }
+    }
+
+    .transition-all {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .transition-all:hover {
+        transform: translateX(4px);
+    }
+
+    input:focus, select:focus {
+        border-color: var(--accent-primary) !important;
+        box-shadow: 0 0 15px rgba(0, 210, 255, 0.2) !important;
+    }
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const idsCtx = document.getElementById('idsChart').getContext('2d');
+    const gradient = idsCtx.createLinearGradient(0, 0, 0, 400);
+    gradient.addColorStop(0, 'rgba(0, 210, 255, 0.3)');
+    gradient.addColorStop(1, 'rgba(0, 210, 255, 0)');
+
+    const idsChart = new Chart(idsCtx, {
+        type: 'line',
+        data: {
+            labels: Array(60).fill(""),
+            datasets: [{
+                data: Array(60).fill(0),
+                borderColor: '#00d2ff',
+                borderWidth: 3,
+                pointRadius: 0,
+                pointHoverRadius: 6,
+                pointBackgroundColor: '#00d2ff',
+                tension: 0.4,
+                fill: true,
+                backgroundColor: gradient
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            animation: { duration: 300 }, // Уменьшаем длительность анимации
+            scales: {
+                x: { display: false },
+                y: {
+                    grid: { color: 'rgba(255,255,255,0.03)', drawBorder: false },
+                    ticks: { color: '#666', font: { family: 'JetBrains Mono', size: 11 } },
+                    min: 0,
+                    max: 3 // Увеличиваем max для отображения высоких anomaly scores
+                }
+            },
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                    borderColor: '#00d2ff',
+                    borderWidth: 1,
+                    titleColor: '#00d2ff',
+                    bodyColor: '#e6edf3',
+                    padding: 12,
+                    displayColors: false
+                }
+            }
+        }
+    });
+
+    function poll() {
+        fetch('/status').then(r => r.json()).then(data => {
+            // Отладочный вывод
+            console.log('Status data received:', data);
+            
+            // Обновление счетчиков если данные есть
+            if (data.pkts_total !== undefined) {
+                document.getElementById('stat-packets').innerText = data.pkts_total.toLocaleString();
+            }
+            if (data.bytes_total_mb !== undefined) {
+                document.getElementById('stat-bytes').innerText = data.bytes_total_mb.toFixed(2);
+            }
+            
+            // Обновление anomaly score с цветом в зависимости от уровня
+            const scoreElement = document.getElementById('stat-score-max');
+            if (data.current_score !== undefined) {
+                const scoreValue = parseFloat(data.current_score).toFixed(4);
+                scoreElement.innerText = scoreValue;
+                
+                // Изменяем цвет в зависимости от уровня аномалии
+                const anomalyThreshold = 0.85; // Используем тот же порог, что и в системе
+                if (scoreValue > anomalyThreshold) {
+                    scoreElement.style.color = '#ff4757'; // Красный для высокой аномалии
+                    // Ищем иконку brain в родительском элементе
+                    const iconElement = scoreElement.closest('.ids-card')?.querySelector('.fa-brain');
+                    if (iconElement) {
+                        iconElement.style.color = '#ff4757';
+                    }
+                } else if (scoreValue > anomalyThreshold/2) {
+                    scoreElement.style.color = '#ffa502'; // Желтый для средней аномалии
+                    // Ищем иконку brain в родительском элементе
+                    const iconElement = scoreElement.closest('.ids-card')?.querySelector('.fa-brain');
+                    if (iconElement) {
+                        iconElement.style.color = '#ffa502';
+                    }
+                } else {
+                    scoreElement.style.color = '#e6edf3'; // Белый для нормы
+                    // Ищем иконку brain в родительском элементе
+                    const iconElement = scoreElement.closest('.ids-card')?.querySelector('.fa-brain');
+                    if (iconElement) {
+                        iconElement.style.color = '#ff9a9e';
+                    }
+                }
+                
+                // Обновление прогресс-бара для anomaly score (относительно порога)
+                const scoreCard = scoreElement.closest('.ids-card');
+                if (scoreCard) {
+                    const scoreBar = scoreCard.querySelector('.progress-bar');
+                    if (scoreBar) {
+                        const scorePercentage = Math.min(100, (parseFloat(scoreValue) / anomalyThreshold) * 100);
+                        scoreBar.style.width = scorePercentage + '%';
+                    }
+                }
+            }
+
+            // Обновление интерфейса
+            const ifaceElement = document.getElementById('stat-interface');
+            if (ifaceElement) {
+                ifaceElement.innerText = (data.active_iface || "STANDBY");
+            }
+            
+            // Обновление активной модели
+            updateActiveModelInfo(data);
+
+            // Обновление графика - гарантируем, что он получает данные
+            if (data.current_score !== undefined && data.current_score !== null) {
+                const score = parseFloat(data.current_score);
+                console.log('Updating chart with score:', score);
+                // Пушим новое значение в график
+                idsChart.data.datasets[0].data.push(score);
+                // Убираем первое значение чтобы поддерживать фиксированный размер
+                if (idsChart.data.datasets[0].data.length > 60) {
+                    idsChart.data.datasets[0].data.shift();
+                }
+                // Обновляем график с анимацией
+                idsChart.update('active');
+            }
+
+            const term = document.getElementById('terminal-feed');
+            if (term && data.log && data.log.length) {
+                term.innerHTML = data.log.map(l => `<div class="mb-1"><span class="text-dim">[${new Date().toLocaleTimeString()}]</span> <span class="text-success">${l}</span></div>`).join('');
+                term.scrollTop = term.scrollHeight;
+            }
+
+            const modeElement = document.getElementById('status-mode-text');
+            if (modeElement) {
+                modeElement.innerText = data.mode || 'STANDBY';
+                console.log('Mode updated to:', data.mode || 'STANDBY');
+            }
+        }).catch(e => {
+            console.error('Poll error:', e);
+            console.log('Error fetching status data');
+        });
+    }
+    
+    function updateActiveModelInfo(data) {
+        const activeModelInfo = document.getElementById('active-model-info');
+        
+        // Проверяем информацию о моделях (берем из data.models_info)
+        if (data.models_info && Array.isArray(data.models_info)) {
+            // Находим активную модель
+            const activeModel = data.models_info.find(model => model.is_active);
+            
+            if (activeModel) {
+                // Если есть активная модель
+                activeModelInfo.innerHTML = `
+                    <div class="text-success mb-2">
+                        <i class="fa-solid fa-shield-halved fa-2x mb-2 d-block"></i>
+                    </div>
+                    <div class="small text-white fw-bold">${activeModel.name}</div>
+                    <div class="ids-tiny text-success mt-1">ACTIVE PROTECTION</div>
+                    <div class="mt-2">
+                        <span class="badge bg-success bg-opacity-20 text-success border border-success border-opacity-30">
+                            <i class="fa-solid fa-check me-1"></i>Running
+                        </span>
+                    </div>
+                `;
+            } else {
+                // Если нет активной модели, но есть обученные модели
+                const trainedModels = data.models_info.filter(model => model.progress === 100);
+                if (trainedModels.length > 0) {
+                    activeModelInfo.innerHTML = `
+                        <div class="text-warning mb-2">
+                            <i class="fa-solid fa-shield-half-full fa-2x mb-2 d-block"></i>
+                        </div>
+                        <div class="small text-white fw-bold">Ready to Activate</div>
+                        <div class="ids-tiny text-warning mt-1">${trainedModels.length} model${trainedModels.length > 1 ? 's' : ''} ready</div>
+                        <div class="mt-2">
+                            <span class="badge bg-warning bg-opacity-20 text-warning border border-warning border-opacity-30">
+                                <i class="fa-solid fa-pause me-1"></i>Inactive
+                            </span>
+                        </div>
+                    `;
+                } else {
+                    // Если нет ни активной, ни обученных моделей
+                    activeModelInfo.innerHTML = `
+                        <div class="opacity-50 mb-2">
+                            <i class="fa-solid fa-brain fa-2x mb-2 d-block"></i>
+                        </div>
+                        <div class="small text-dim">No Active Model</div>
+                        <div class="ids-tiny text-muted mt-1">Train and activate a model to begin protection</div>
+                    `;
+                }
+            }
+        } else {
+            // Если нет информации о моделях, отображаем стандартный статус
+            activeModelInfo.innerHTML = `
+                <div class="opacity-50 mb-2">
+                    <i class="fa-solid fa-brain fa-2x mb-2 d-block"></i>
+                </div>
+                <div class="small text-dim">No Active Model</div>
+                <div class="ids-tiny text-muted mt-1">Train and activate a model to begin protection</div>
+            `;
+        }
+    }
+
+    function activateModel(modelId) {
+        fetch('/activate_model', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ model_id: modelId })
+        }).then(r => r.json()).then(data => {
+            if (data.status === 'ok') {
+                location.reload();
+            }
+        });
+    }
+
+    function refreshData() {
+        poll();
+    }
+
+    function toggleFullscreen() {
+        if (!document.fullscreenElement) {
+            document.documentElement.requestFullscreen();
+        } else {
+            document.exitFullscreen();
+        }
+    }
+
+    document.getElementById('create-model-btn').addEventListener('click', () => {
+        const name = document.getElementById('model-name-input').value || 'Model-' + Date.now();
+        const type = document.getElementById('model-type-select').value;
+        
+        fetch('/create_model', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ model_name: name, model_type: type })
+        }).then(r => r.json()).then(data => {
+            if (data.status === 'ok') {
+                location.reload();
+            }
+        });
+    });
+
+    function stopTraining(event, modelId) {
+        event.stopPropagation(); // Остановить всплытие события, чтобы не активировать модель
+        
+        if (confirm('Are you sure you want to stop training for this model? Progress will be lost.')) {
+            fetch(`/api/stop_training/${modelId}`, {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                credentials: 'same-origin'  // Отправка куки сессии
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.status === 'stopped') {
+                    location.reload();
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error stopping training:', error);
+                alert('An error occurred while stopping training.');
+            });
+        }
+    }
+
+    function deleteModel(event, modelId, modelName) {
+        event.stopPropagation(); // Остановить всплытие события, чтобы не активировать модель
+        
+        if (confirm(`Are you sure you want to delete model "${modelName}"? This action cannot be undone.`)) {
+            fetch('/delete_model', {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify({ model_id: modelId }),
+                credentials: 'same-origin'  // Отправка куки сессии
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.status === 'ok') {
+                    location.reload();
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error deleting model:', error);
+                alert('An error occurred while deleting the model.');
+            });
+        }
+    }
+
+    setInterval(poll, 1500);
+    poll();
+</script>
+{% endblock %}

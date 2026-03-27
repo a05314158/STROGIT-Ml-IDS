@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container-fluid d-flex align-items-center justify-content-center" style="min-height: 90vh;">
+    <div class="ids-card p-5" style="width: 100%; max-width: 450px; animation: fadeInUp 0.6s ease-out;">
+        <div class="text-center mb-5">
+            <div class="mb-4" style="font-size: 3rem;">
+                <i class="fa-solid fa-shield-halved text-primary" style="text-shadow: 0 0 20px rgba(0, 210, 255, 0.3);"></i>
+            </div>
+            <h2 class="fw-900 text-white mb-2">Welcome Back</h2>
+            <p class="ids-tiny text-dim"><i class="fa-solid fa-lock me-1"></i>Secure Authentication Portal</p>
+        </div>
+
+        {% if error %}
+        <div class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
+            <i class="fa-solid fa-exclamation-circle me-2"></i>{{ error }}
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
+        </div>
+        {% endif %}
+
+        <form method="POST" action="{{ url_for('login') }}">
+            <div class="mb-4">
+                <label class="ids-tiny text-primary mb-2 d-block">Email Address</label>
+                <input type="email" name="email" class="form-control bg-black border-secondary border-opacity-25 text-white py-3 rounded-3" placeholder="your@email.com" required autofocus style="transition: 0.3s;">
+            </div>
+
+            <div class="mb-5">
+                <label class="ids-tiny text-primary mb-2 d-block">Password</label>
+                <input type="password" name="password" class="form-control bg-black border-secondary border-opacity-25 text-white py-3 rounded-3" placeholder="••••••••" required style="transition: 0.3s;">
+            </div>
+
+            <button type="submit" class="btn-ids-primary w-100 py-3 fw-bold mb-4">
+                <i class="fa-solid fa-sign-in-alt me-2"></i>Sign In
+            </button>
+
+            <div class="text-center border-top border-white border-opacity-10 pt-4">
+                <p class="text-dim ids-tiny mb-3">Don't have an account?</p>
+                <a href="{{ url_for('register') }}" class="btn btn-outline-primary w-100 py-2 rounded-3">
+                    <i class="fa-solid fa-user-plus me-2"></i>Create Account
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+    input:focus {
+        border-color: var(--accent-primary) !important;
+        box-shadow: 0 0 15px rgba(0, 210, 255, 0.2) !important;
+    }
+</style>
+{% endblock %}
